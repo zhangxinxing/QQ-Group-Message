@@ -1,0 +1,85 @@
+QQGroup开发文档
+
+                                                         撰稿人：zhang
+                                                      版  本：1.0
+                                                             时  间：2015年8月
+
+第一部分 总体思路
+
+程序的主体是基于模拟webQQ的请求与接收数据的流程，构造相关数据，并模拟Get及Post过程，获取登录权限和相关信息获取。
+
+
+第二步部分 流程图（没法粘贴）
+
+第三部分 相关类说明（详细内容见源程序注释）
+
+
+类HttpClient：
+
+主要功能：
+       存储相关cookies变量
+       模拟Get过程
+       模拟Post过程
+
+表3.1 类HttpClient主要方法说明
+
+def Get(self, url, refer=None):	模拟GET方法，url为get的地址，refer为http发送中的Referer
+def Post(self, url, data, refer=None):	模拟POST方法，url为postt的地址，data为需要post 的数据，refer为http发送中的Referer
+def Download(self, url, file):	将url的内容写入文件file中
+def getCookie(self, key):	获取指定key的cookie值
+
+
+
+类UserGetMessage（继承自HttpClient类）：
+
+主要功能：
+       登录并获得权限
+       更新群列表
+       处理接收的消息
+       更新群成员列表
+       更新成员详细信息
+
+表3.2 类UserGetMessage主要方法说明
+
+def login(self):	登录过程
+def uin_to_account(self,tuin):	将tuin转换为真实的qq号码
+def updateGroupInfo(self,gname,gcode):	跟新群成员列表，gname为群的名字，gcode为qq服务器返回的gcode值
+def updateGroupList(self):	更新群列表
+def updateMemberList(self,findnum,filename):	获取指定qq号码的详细信息，findnum为指定的qq号码，filename为文件路径
+def handleMessage(self,msgObj):	处理消息，msgObj为json格式的消息包
+def getMessage(self):	UserGetMessage类的总体控制函数
+
+
+
+
+
+类check_msg（继承自threading.Thread类）：
+
+主要功能：
+       发送心跳包
+       预处理接收的消息
+
+
+表3.2 类UserGetMessage主要方法说明
+
+def run(self):	继承的run方法，发送心跳包，并粗分类接收的消息
+def check(self):	模拟心跳包过程
+
+
+
+
+第四部分 补充及说明
+
+受制于webqq，相关信息获取过程，容易出错
+
+发送的相关加密数据，计算方法会常常更新
+
+不能长时间的qq在线，24-48h便会被迫下线
+
+webqq不支持接收离线的消息，文件，图片，和自己在其他客户端发送的消息
+
+因为获取的群信息（初始时），获取不到真实的群id，所以以群的名称作为 唯一标识 （在创建相关文件目录时用到）
+
+
+
+注：具体实现及一些说明在源码中，同时，解析源码，需对浏览器的基本发包流程和WebQQ基本协议有所了解。
